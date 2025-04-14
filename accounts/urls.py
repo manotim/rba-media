@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import register, user_login, user_logout, admin_dashboard, creator_dashboard, customer_dashboard
+from .views import register, user_login, user_logout, admin_dashboard, creator_dashboard, customer_dashboard, upload_audio, upload_image
 
 urlpatterns = [
     path('register/', register, name='register'),
@@ -8,4 +8,6 @@ urlpatterns = [
     path('admin-dashboard/', admin_dashboard, name='admin_dashboard'),
     path('creator-dashboard/', creator_dashboard, name='creator_dashboard'),
     path('customer-dashboard/', customer_dashboard, name='customer_dashboard'),
+    path('upload-audio/', upload_audio, name='upload_audio'),
+    path('upload-image/', upload_image, name='upload_image'),
 ]
