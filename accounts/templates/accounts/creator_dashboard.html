@@ -3,6 +3,12 @@
 
 <hr>
 
+{% if messages %}
+  {% for message in messages %}
+    <p style="color: green;">{{ message }}</p>
+  {% endfor %}
+{% endif %}
+
 <h2>Upload Audio Journal</h2>
 <form method="POST" enctype="multipart/form-data" action="{% url 'upload_audio' %}">
     {% csrf_token %}
@@ -16,3 +22,36 @@
     {{ image_form.as_p }}
     <button type="submit">Upload Image</button>
 </form>
+<hr>
+
+<h2>Your Uploaded Audio Journals</h2>
+{% if uploaded_audios %}
+    <ul>
+        {% for audio in uploaded_audios %}
+            <li>
+                <strong>{{ audio.title }}</strong><br>
+                <audio controls>
+                    <source src="{{ audio.audio_file.url }}" type="audio/mpeg">
+                    Your browser does not support the audio element.
+                </audio>
+                <p>Category: {{ audio.category }}</p>
+            </li>
+        {% endfor %}
+    </ul>
+{% else %}
+    <p>No audio journals uploaded yet.</p>
+{% endif %}
+
+<h2>Your Uploaded Images</h2>
+{% if uploaded_images %}
+    <ul>
+        {% for image in uploaded_images %}
+            <li>
+                <strong>{{ image.title }}</strong><br>
+                <img src="{{ image.image.url }}" alt="{{ image.title }}" width="200">
+            </li>
+        {% endfor %}
+    </ul>
+{% else %}
+    <p>No images uploaded yet.</p>
+{% endif %}

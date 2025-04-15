@@ -1,2 +1,58 @@
 <h1>Welcome to {{ user.get_username }}'s Dashboard</h1>
 <a href="{% url 'logout' %}">Logout</a>
+<hr>
+
+<h2>Gospel Audio Journals</h2>
+{% if gospel_audios %}
+    <ul>
+        {% for audio in gospel_audios %}
+            <li>
+                <strong>{{ audio.title }}</strong> by {{ audio.creator.get_username }}<br>
+                <audio controls>
+                    <source src="{{ audio.audio_file.url }}" type="audio/mpeg">
+                    Your browser does not support the audio element.
+                </audio>
+                <p>Category: Gospel</p>
+                <p>Uploaded on: {{ audio.uploaded_at|date:"M d, Y H:i" }}</p>
+            </li>
+        {% endfor %}
+    </ul>
+{% else %}
+    <p>No gospel audio journals available.</p>
+{% endif %}
+
+<h2>Secular Audio Journals</h2>
+{% if secular_audios %}
+    <ul>
+        {% for audio in secular_audios %}
+            <li>
+                <strong>{{ audio.title }}</strong> by {{ audio.creator.get_username }}<br>
+                <audio controls>
+                    <source src="{{ audio.audio_file.url }}" type="audio/mpeg">
+                    Your browser does not support the audio element.
+                </audio>
+                <p>Category: Secular</p>
+                <p>Uploaded on: {{ audio.uploaded_at|date:"M d, Y H:i" }}</p>
+            </li>
+        {% endfor %}
+    </ul>
+{% else %}
+    <p>No secular audio journals available.</p>
+{% endif %}
+
+<hr>
+
+<h2>All Uploaded Images</h2>
+{% if all_images %}
+    <ul>
+        {% for image in all_images %}
+            <li>
+                <strong>{{ image.title }}</strong> by {{ image.creator.get_username }}<br>
+                <img src="{{ image.image.url }}" alt="{{ image.title }}" width="200"><br>
+                <p>Uploaded on: {{ image.uploaded_at|date:"M d, Y H:i" }}</p>
+            </li>
+        {% endfor %}
+    </ul>
+{% else %}
+    <p>No images uploaded yet.</p>
+{% endif %}

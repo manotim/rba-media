@@ -5,6 +5,7 @@ from .models import CustomUser, AudioJournal, ImageUpload
 from django.contrib.auth.decorators import login_required, permission_required, user_passes_test
 from .decorators import admin_required, creator_required, customer_required
 from .forms import AudioJournalForm, ImageUploadForm
+from django.contrib import messages
 
 
 def register(request):
@@ -59,21 +60,39 @@ def admin_dashboard(request):
 def creator_dashboard(request):
     audio_form = AudioJournalForm()
     image_form = ImageUploadForm()
+    uploaded_audios = AudioJournal.objects.filter(creator=request.user)
+    uploaded_images = ImageUpload.objects.filter(creator=request.user)
+
     return render(request, 'accounts/creator_dashboard.html', {
         'audio_form': audio_form,
-        'image_form': image_form
+        'image_form': image_form,
+        'uploaded_audios': uploaded_audios,
+        'uploaded_images': uploaded_images,
     })
 
 @user_passes_test(customer_required)
 @login_required
 def customer_dashboard(request):
-    return render(request, 'accounts/customer_dashboard.html')
+    # Fetching Gospel and Secular audio journals
+    gospel_audios = AudioJournal.objects.filter(category='gospel')
+    secular_audios = AudioJournal.objects.filter(category='secular')
+    
+    # Fetching all uploaded images
+    all_images = ImageUpload.objects.all()
+
+    return render(request, 'accounts/customer_dashboard.html', {
+        'gospel_audios': gospel_audios,
+        'secular_audios': secular_audios,
+        'all_images': all_images,
+    })
+
 
 
 
 @user_passes_test(creator_required)
 @login_required
 def upload_audio(request):
+    messages.success(request, 'Audio uploaded successfully!')
     if request.method == 'POST':
         form = AudioJournalForm(request.POST, request.FILES)
         if form.is_valid():
@@ -88,6 +107,7 @@ def upload_audio(request):
 @user_passes_test(creator_required)
 @login_required
 def upload_image(request):
+    messages.success(request, 'Image uploaded successfully!')
     if request.method == 'POST':
         form = ImageUploadForm(request.POST, request.FILES)
         if form.is_valid():
