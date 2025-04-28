@@ -1,82 +1,115 @@
-<h1>Welcome to {{ user.get_username }}'s Dashboard</h1>
-<a href="{% url 'logout' %}">Logout</a>
-<hr>
+{% extends 'base/base.html' %}
+{% load static %}
+{% block content %}
+<div class="max-w-7xl mx-auto p-6">
+    <h1 class="text-3xl font-bold mb-6">Welcome to {{ user.get_username }}'s Customer Dashboard</h1>
 
-<h2>Gospel Audio Journals</h2>
-{% if gospel_audios %}
-    <ul>
-        {% for audio in gospel_audios %}
-            <li>
-                <strong>{{ audio.title }}</strong> by {{ audio.creator.get_username }}<br>
-                {% if audio.id in purchased_ids %}
-                    <audio controls>
-                        <source src="{{ audio.audio_file.url }}" type="audio/mpeg">
-                        Your browser does not support the audio element.
-                    </audio>
-                {% else %}
-                    <p><em>You must purchase this audio to listen.</em></p>
-                    <form action="{% url 'purchase_audio' audio.id %}" method="post">
-                        {% csrf_token %}
-                        <button type="submit">Buy for $X.XX</button>
-                    </form>
-                {% endif %}
-                <p>Category: Gospel</p>
-                <p>Uploaded on: {{ audio.uploaded_at|date:"M d, Y H:i" }}</p>
-            </li>
-        {% endfor %}
-    </ul>
-{% else %}
-    <p>No gospel audio journals available.</p>
-{% endif %}
+    <div class="flex justify-end mb-6">
+        <a href="{% url 'logout' %}" class="text-white bg-red-500 hover:bg-red-600 px-4 py-2 rounded">
+            Logout
+        </a>
+    </div>
 
-<h2>Secular Audio Journals</h2>
-{% if secular_audios %}
-    <ul>
-        {% for audio in secular_audios %}
-            <li>
-                <strong>{{ audio.title }}</strong> by {{ audio.creator.get_username }}<br>
-                {% if audio.id in purchased_ids %}
-                    <audio controls>
-                        <source src="{{ audio.audio_file.url }}" type="audio/mpeg">
-                        Your browser does not support the audio element.
-                    </audio>
-                {% else %}
-                    <p><em>You must purchase this audio to listen.</em></p>
-                    <form action="{% url 'purchase_audio' audio.id %}" method="post">
-                        {% csrf_token %}
-                        <button type="submit">Buy for $X.XX</button>
-                    </form>
-                {% endif %}
-                <p>Category: Secular</p>
-                <p>Uploaded on: {{ audio.uploaded_at|date:"M d, Y H:i" }}</p>
-            </li>
-        {% endfor %}
-    </ul>
-{% else %}
-    <p>No secular audio journals available.</p>
-{% endif %}
+    <hr class="my-8">
 
-<hr>
+    <!-- Gospel Audio Journals -->
+    <section class="mb-12">
+        <h2 class="text-2xl font-semibold mb-4">Gospel Audio Journals</h2>
+        {% if gospel_audios %}
+            <ul class="space-y-6">
+                {% for audio in gospel_audios %}
+                    <li class="p-4 border rounded-lg shadow">
+                        <strong class="text-lg">{{ audio.title }}</strong> 
+                        <span class="text-gray-500">by {{ audio.creator.get_username }}</span><br>
 
-<h2>All Uploaded Images</h2>
-{% if all_images %}
-    <ul>
-        {% for image in all_images %}
-            <li>
-                <strong>{{ image.title }}</strong> by {{ image.creator.get_username }}<br>
-                {% if image.id in purchased_ids %}
-                    <img src="{{ image.image.url }}" alt="{{ image.title }}" width="200"><br>
-                {% else %}
-                    <p><em>You must purchase this image to view it.</em></p>
-                    <form action="{% url 'purchase_image' image.id %}" method="post">
-                        {% csrf_token %}
-                        <button type="submit">Buy for $X.XX</button>
-                    </form>
-                {% endif %}
-                <p>Uploaded on: {{ image.uploaded_at|date:"M d, Y H:i" }}</p>
-            </li>
-        {% endfor %}
-    </ul>
-{% else %}
-    <p>No images uploaded yet.</p>
-{% endif %}
+                        {% if audio.id in purchased_audio_ids %}
+                            <audio controls class="mt-2 w-full">
+                                <source src="{{ audio.audio_file.url }}" type="audio/mpeg">
+                                Your browser does not support the audio element.
+                            </audio>
+                        {% else %}
+                            <p class="text-red-500 mt-2"><em>You must purchase this audio to listen.</em></p>
+                            <form action="{% url 'purchase_audio' audio.id %}" method="post" class="mt-2">
+                                {% csrf_token %}
+                                <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded">
+                                    Buy for $X.XX
+                                </button>
+                            </form>
+                        {% endif %}
+                        <p class="text-gray-600 mt-2">Category: Gospel</p>
+                        <p class="text-gray-400">Uploaded on: {{ audio.uploaded_at|date:"M d, Y H:i" }}</p>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p class="text-gray-500">No gospel audio journals available.</p>
+        {% endif %}
+    </section>
+
+    <!-- Secular Audio Journals -->
+    <section class="mb-12">
+        <h2 class="text-2xl font-semibold mb-4">Secular Audio Journals</h2>
+        {% if secular_audios %}
+            <ul class="space-y-6">
+                {% for audio in secular_audios %}
+                    <li class="p-4 border rounded-lg shadow">
+                        <strong class="text-lg">{{ audio.title }}</strong> 
+                        <span class="text-gray-500">by {{ audio.creator.get_username }}</span><br>
+
+                        {% if audio.id in purchased_audio_ids %}
+                            <audio controls class="mt-2 w-full">
+                                <source src="{{ audio.audio_file.url }}" type="audio/mpeg">
+                                Your browser does not support the audio element.
+                            </audio>
+                        {% else %}
+                            <p class="text-red-500 mt-2"><em>You must purchase this audio to listen.</em></p>
+                            <form action="{% url 'purchase_audio' audio.id %}" method="post" class="mt-2">
+                                {% csrf_token %}
+                                <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded">
+                                    Buy for $X.XX
+                                </button>
+                            </form>
+                        {% endif %}
+                        <p class="text-gray-600 mt-2">Category: Secular</p>
+                        <p class="text-gray-400">Uploaded on: {{ audio.uploaded_at|date:"M d, Y H:i" }}</p>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p class="text-gray-500">No secular audio journals available.</p>
+        {% endif %}
+    </section>
+
+    <hr class="my-8">
+
+    <!-- Images -->
+    <section>
+        <h2 class="text-2xl font-semibold mb-4">All Uploaded Images</h2>
+        {% if all_images %}
+            <ul class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+                {% for image in all_images %}
+                    <li class="p-4 border rounded-lg shadow">
+                        <strong class="text-lg">{{ image.title }}</strong> 
+                        <span class="text-gray-500">by {{ image.creator.get_username }}</span><br>
+
+                        {% if image.id in purchased_image_ids %}
+                            <img src="{{ image.image.url }}" alt="{{ image.title }}" class="mt-2 rounded w-full h-auto">
+                        {% else %}
+                            <p class="text-red-500 mt-2"><em>You must purchase this image to view it.</em></p>
+                            <form action="{% url 'purchase_image' image.id %}" method="post" class="mt-2">
+                                {% csrf_token %}
+                                <button type="submit" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded">
+                                    Buy for $X.XX
+                                </button>
+                            </form>
+                        {% endif %}
+                        <p class="text-gray-400 mt-2">Uploaded on: {{ image.uploaded_at|date:"M d, Y H:i" }}</p>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p class="text-gray-500">No images uploaded yet.</p>
+        {% endif %}
+    </section>
+</div>
+{% endblock %}

@@ -5,6 +5,7 @@ from .models import CustomUser, AudioJournal, ImageUpload, Purchase
 from django.contrib.auth.decorators import login_required, permission_required, user_passes_test
 from .decorators import admin_required, creator_required, customer_required
 from .forms import AudioJournalForm, ImageUploadForm
+from django.shortcuts import get_object_or_404
 from django.contrib import messages
 
 
@@ -70,29 +71,33 @@ def creator_dashboard(request):
         'uploaded_images': uploaded_images,
     })
 
-@user_passes_test(customer_required)
-@login_required
+def customer_required(user):
+    return user.is_authenticated and user.role == 'customer'
 
 @user_passes_test(customer_required)
 @login_required
 def customer_dashboard(request):
-    # Fetching Gospel and Secular audio journals
+    # Fetch Gospel and Secular audio journals
     gospel_audios = AudioJournal.objects.filter(category='gospel')
     secular_audios = AudioJournal.objects.filter(category='secular')
     all_images = ImageUpload.objects.all()
 
     # Get IDs of audio and image purchases
-    purchased_audio_ids = Purchase.objects.filter(customer=request.user, audio_journal__isnull=False).values_list('audio_journal_id', flat=True)
-    purchased_image_ids = Purchase.objects.filter(customer=request.user, image_upload__isnull=False).values_list('image_upload_id', flat=True)
+    purchased_audio_ids = Purchase.objects.filter(
+        customer=request.user, audio_journal__isnull=False
+    ).values_list('audio_journal_id', flat=True)
+
+    purchased_image_ids = Purchase.objects.filter(
+        customer=request.user, image_upload__isnull=False
+    ).values_list('image_upload_id', flat=True)
 
     return render(request, 'accounts/customer_dashboard.html', {
         'gospel_audios': gospel_audios,
         'secular_audios': secular_audios,
         'all_images': all_images,
-        'purchased_audio_ids': purchased_audio_ids,
-        'purchased_image_ids': purchased_image_ids,
+        'purchased_audio_ids': list(purchased_audio_ids),
+        'purchased_image_ids': list(purchased_image_ids),
     })
-
 
 
 @user_passes_test(creator_required)
@@ -125,9 +130,25 @@ def upload_image(request):
         form = ImageUploadForm()
     return render(request, 'accounts/upload_image.html', {'form': form})
 
+
+
 @login_required
 def purchase_audio(request, audio_id):
-    audio = AudioJournal.objects.get(id=audio_id)
-    Purchase.objects.get_or_create(customer=request.user, audio_journal=audio)
-    messages.success(request, "Purchase successful!")
+    audio = get_object_or_404(AudioJournal, id=audio_id)
+    purchase, created = Purchase.objects.get_or_create(customer=request.user, audio_journal=audio)
+    if created:
+        messages.success(request, "Purchase successful!")
+    else:
+        messages.info(request, "You already purchased this audio.")
     return redirect('customer_dashboard')
+
+@login_required
+def purchase_image(request, image_id):
+    image = get_object_or_404(ImageUpload, id=image_id)
+    purchase, created = Purchase.objects.get_or_create(customer=request.user, image_upload=image)
+    if created:
+        messages.success(request, "Image purchase successful!")
+    else:
+        messages.info(request, "You already purchased this image.")
+    return redirect('customer_dashboard')
+

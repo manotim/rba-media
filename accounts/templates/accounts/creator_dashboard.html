@@ -1,57 +1,84 @@
-<h1>Welcome to {{ user.get_username }}'s Dashboard</h1>
-<a href="{% url 'logout' %}">Logout</a>
+{% extends 'base/base.html' %}
+{% load static %}
+{% block content %}
+<div class="max-w-7xl mx-auto p-6">
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-3xl font-bold">Welcome, {{ user.get_username }}!</h1>
+        <a href="{% url 'logout' %}" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded">
+            Logout
+        </a>
+    </div>
 
-<hr>
+    {% if messages %}
+        <div class="mb-6">
+            {% for message in messages %}
+                <p class="text-green-600">{{ message }}</p>
+            {% endfor %}
+        </div>
+    {% endif %}
 
-{% if messages %}
-  {% for message in messages %}
-    <p style="color: green;">{{ message }}</p>
-  {% endfor %}
-{% endif %}
+    <!-- Upload Audio Journal -->
+    <section class="mb-12">
+        <h2 class="text-2xl font-semibold mb-4">Upload Audio Journal</h2>
+        <form method="POST" enctype="multipart/form-data" action="{% url 'upload_audio' %}" class="space-y-4 bg-white p-6 rounded-lg shadow">
+            {% csrf_token %}
+            {{ audio_form.as_p }}
+            <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded">
+                Upload Audio
+            </button>
+        </form>
+    </section>
 
-<h2>Upload Audio Journal</h2>
-<form method="POST" enctype="multipart/form-data" action="{% url 'upload_audio' %}">
-    {% csrf_token %}
-    {{ audio_form.as_p }}
-    <button type="submit">Upload Audio</button>
-</form>
+    <!-- Upload Image -->
+    <section class="mb-12">
+        <h2 class="text-2xl font-semibold mb-4">Upload Image</h2>
+        <form method="POST" enctype="multipart/form-data" action="{% url 'upload_image' %}" class="space-y-4 bg-white p-6 rounded-lg shadow">
+            {% csrf_token %}
+            {{ image_form.as_p }}
+            <button type="submit" class="bg-green-500 hover:bg-green-600 text-white px-6 py-2 rounded">
+                Upload Image
+            </button>
+        </form>
+    </section>
 
-<h2>Upload Image</h2>
-<form method="POST" enctype="multipart/form-data" action="{% url 'upload_image' %}">
-    {% csrf_token %}
-    {{ image_form.as_p }}
-    <button type="submit">Upload Image</button>
-</form>
-<hr>
+    <hr class="my-12">
 
-<h2>Your Uploaded Audio Journals</h2>
-{% if uploaded_audios %}
-    <ul>
-        {% for audio in uploaded_audios %}
-            <li>
-                <strong>{{ audio.title }}</strong><br>
-                <audio controls>
-                    <source src="{{ audio.audio_file.url }}" type="audio/mpeg">
-                    Your browser does not support the audio element.
-                </audio>
-                <p>Category: {{ audio.category }}</p>
-            </li>
-        {% endfor %}
-    </ul>
-{% else %}
-    <p>No audio journals uploaded yet.</p>
-{% endif %}
+    <!-- Uploaded Audios -->
+    <section class="mb-12">
+        <h2 class="text-2xl font-semibold mb-4">Your Uploaded Audio Journals</h2>
+        {% if uploaded_audios %}
+            <ul class="space-y-6">
+                {% for audio in uploaded_audios %}
+                    <li class="p-6 bg-white border rounded-lg shadow">
+                        <div class="mb-2 text-lg font-medium">{{ audio.title }}</div>
+                        <audio controls class="w-full mb-2">
+                            <source src="{{ audio.audio_file.url }}" type="audio/mpeg">
+                            Your browser does not support the audio element.
+                        </audio>
+                        <p class="text-gray-600">Category: {{ audio.category }}</p>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p class="text-gray-500">No audio journals uploaded yet.</p>
+        {% endif %}
+    </section>
 
-<h2>Your Uploaded Images</h2>
-{% if uploaded_images %}
-    <ul>
-        {% for image in uploaded_images %}
-            <li>
-                <strong>{{ image.title }}</strong><br>
-                <img src="{{ image.image.url }}" alt="{{ image.title }}" width="200">
-            </li>
-        {% endfor %}
-    </ul>
-{% else %}
-    <p>No images uploaded yet.</p>
-{% endif %}
+    <!-- Uploaded Images -->
+    <section>
+        <h2 class="text-2xl font-semibold mb-4">Your Uploaded Images</h2>
+        {% if uploaded_images %}
+            <ul class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+                {% for image in uploaded_images %}
+                    <li class="bg-white p-4 border rounded-lg shadow">
+                        <div class="mb-2 text-lg font-medium">{{ image.title }}</div>
+                        <img src="{{ image.image.url }}" alt="{{ image.title }}" class="rounded w-full h-auto">
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p class="text-gray-500">No images uploaded yet.</p>
+        {% endif %}
+    </section>
+</div>
+{% endblock %}
